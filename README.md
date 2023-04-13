@@ -9,7 +9,7 @@
 - Repo klónozása
 
 ```
-git clone <repository>
+git clone https://github.com/DTbro/pfSense-config-exporter.git
 ```
 
 - Modulok telepitése
@@ -45,9 +45,9 @@ npm run sandbox
 
 ### Könyvtár szerkezet
 
-> data => exportált eredeti pfSense XML konfigok
-> out => átalakitott CSV formátumú fájlok. (alkönyvtárak: aliases, fw, nat)
-> sandbox => sandbox környezet könyvtárai (data: input, out: output)
+- data => exportált eredeti pfSense XML konfigok
+- out => átalakitott CSV formátumú fájlok. (alkönyvtárak: aliases, fw, nat)
+- sandbox => sandbox környezet könyvtárai (data: input, out: output)
 
 #### Frissitések
 
