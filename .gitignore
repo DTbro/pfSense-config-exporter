@@ -1,0 +1,15 @@
+# Node modules
+/node_modules
+
+# File directories
+/data/*
+/out/aliases/*
+/out/fw/*
+/out/nat/*
+
+# Sandbox
+/sandbox
+
+# Enviroment
+.env
+.env.local
