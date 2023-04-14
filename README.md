@@ -51,7 +51,7 @@ npm run sandbox
 
 #### Frissitések
 
-- Még nincsenek frissitések
+- 2023.04.14: DHCP Export funkció hozzáadása
 
 ---
 
