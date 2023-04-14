@@ -3,6 +3,8 @@ const {
   formatRule,
   formatNat,
   formatAlias,
+  formatDHCP,
+  generateScopeObject,
 } = require("./util/formatFunctions");
 const {
   resetDirectories,
@@ -27,7 +29,7 @@ resetDirectories(outputURL);
 
 fs.readdirSync(inputURL).forEach((file) => {
   const jsonObject = convert2JSON(`${inputURL}/${file}`);
-  const { system, nat, filter, aliases } = jsonObject.pfsense;
+  const { system, nat, filter, aliases, dhcpd } = jsonObject.pfsense;
   const hostname = returnValue(system.hostname);
 
   let aliasArray = [];
@@ -58,15 +60,32 @@ fs.readdirSync(inputURL).forEach((file) => {
     });
   }
 
+  let staticmaps = [];
+  let scopes = [];
+  Object.keys(dhcpd).forEach((key) => {
+    if (Array.isArray(dhcpd[key].staticmap)) {
+      staticmaps = [...staticmaps, ...dhcpd[key].staticmap];
+    }
+    const scopeObject = generateScopeObject(dhcpd[key]); 
+    if (scopeObject.Start !== '-') {
+      scopes.push(scopeObject);
+    }
+  })
+  const dhcpBindings = formatDHCP(staticmaps);
+
   // Output files
   const fwFile = `${outputURL}/fw/FW_${hostname}.csv`;
   const natFile = `${outputURL}/nat/NAT_${hostname}.csv`;
   const aliasFile = `${outputURL}/aliases/ALIAS_${hostname}.csv`;
+  const dhcpScopeFile = `${outputURL}/dhcp/scopes/SCOPES_${hostname}.csv`;
+  const dhcpBindingFile = `${outputURL}/dhcp/bindings/BINDING_${hostname}.csv`;
 
   Promise.all([
     makeFile(aliasArray, aliasFile),
     makeFile(rules, fwFile),
     makeFile(natRules, natFile),
+    makeFile(dhcpBindings, dhcpBindingFile),
+    makeFile(scopes, dhcpScopeFile)
   ]).then(() => {
     console.log(`${hostname} ✅`);
   });

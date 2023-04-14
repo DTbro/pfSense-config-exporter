@@ -6,6 +6,7 @@
 /out/aliases/*
 /out/fw/*
 /out/nat/*
+/out/dhcp/*
 
 # Sandbox
 /sandbox

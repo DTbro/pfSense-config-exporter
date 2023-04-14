@@ -30,6 +30,10 @@ const convert2JSON = (input) => {
 };
 
 const returnValue = (property) => {
+  if (!property) {
+    return "-";
+  }
+
   if (Object.values(property).length === 1) {
     return Object.values(property)[0];
   } else {
@@ -51,6 +55,9 @@ const resetDirectories = (outputRoot) => {
   fs.mkdirSync(path.join(__dirname, "..", outputRoot, "aliases"));
   fs.mkdirSync(path.join(__dirname, "..", outputRoot, "fw"));
   fs.mkdirSync(path.join(__dirname, "..", outputRoot, "nat"));
+  fs.mkdirSync(path.join(__dirname, "..", outputRoot, "dhcp"));
+  fs.mkdirSync(path.join(__dirname, "..", outputRoot, "dhcp/bindings"));
+  fs.mkdirSync(path.join(__dirname, "..", outputRoot, "dhcp/scopes"));
 
   console.log(`Könyvtárak visszaállitva alaphelyzetbe!`);
 };

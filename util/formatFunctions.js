@@ -104,8 +104,33 @@ const formatAlias = (alias) => {
   return formattedAliases;
 };
 
+const formatDHCP = (staticmaps) => {
+  const formattedMaps = [];
+  staticmaps.forEach((binding) => {
+    formattedMaps.push({
+      Hostname: returnValue(binding.hostname),
+      MAC: returnValue(binding.mac),
+      IP: returnValue(binding.ipaddr),
+      Description: returnValue(binding.descr),
+    })
+  });
+
+  return formattedMaps;
+}
+
+const generateScopeObject = (root) => ({
+    "Start": returnValue(root.range.from),
+    "End": returnValue(root.range.to),
+    "Gateway": returnValue(root.gateway),
+    "Default Lease Time": returnValue(root.defaultleasetime),
+    "Max Lease Time": returnValue(root.maxleasetime),
+    "Bindings": Array.isArray(root.staticmap) ? root.staticmap.length : 0
+});
+
 module.exports = {
   formatRule,
   formatNat,
   formatAlias,
+  formatDHCP,
+  generateScopeObject
 };
