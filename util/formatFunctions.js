@@ -112,25 +112,122 @@ const formatDHCP = (staticmaps) => {
       MAC: returnValue(binding.mac),
       IP: returnValue(binding.ipaddr),
       Description: returnValue(binding.descr),
-    })
+    });
   });
 
   return formattedMaps;
-}
+};
 
 const generateScopeObject = (root) => ({
-    "Start": returnValue(root.range.from),
-    "End": returnValue(root.range.to),
-    "Gateway": returnValue(root.gateway),
-    "Default Lease Time": returnValue(root.defaultleasetime),
-    "Max Lease Time": returnValue(root.maxleasetime),
-    "Bindings": Array.isArray(root.staticmap) ? root.staticmap.length : 0
+  Start: returnValue(root.range.from),
+  End: returnValue(root.range.to),
+  Gateway: returnValue(root.gateway),
+  "Default Lease Time": returnValue(root.defaultleasetime),
+  "Max Lease Time": returnValue(root.maxleasetime),
+  Bindings: Array.isArray(root.staticmap) ? root.staticmap.length : 0,
 });
+
+const formatOVPN = (vpnServers, vpnClients) => {
+  if (!vpnClients) {
+    return [];
+  }
+
+  if (!Array.isArray(vpnClients)) {
+    vpnClients = [vpnClients];
+  }
+  const formattedVPNClients = [];
+
+  vpnClients.forEach((client) => {
+    const server = vpnServers.find(
+      (vpnServer) =>
+        returnValue(vpnServer.vpnid) === returnValue(client.server_list)
+    );
+
+    if (server) {
+      formattedVPNClients.push({
+        "Server ID": returnValue(server.vpnid),
+        "Server Description": returnValue(server.description),
+        "Server Interface": returnValue(server.interface).replace(
+          "lo",
+          "Loopback"
+        ),
+        "Server Port": returnValue(server.local_port),
+        Protocol: returnValue(server.protocol),
+        "Tunnel Network": returnValue(server.tunnel_network),
+        "Local Network": returnValue(server.local_networl),
+        "Client Name": returnValue(client.common_name),
+        "Client Description": returnValue(client.description),
+        "Client Address": returnValue(client.tunnel_network),
+      });
+    }
+  });
+
+  return formattedVPNClients;
+};
+
+const formatIPSecP1 = (phase1s) => {
+  return phase1s.map((endpoint) => ({
+    ID: returnValue(endpoint.ikeid),
+    Megnevezes: returnValue(endpoint.descr),
+    Local: returnValue(endpoint.myid_data),
+    Peer: returnValue(endpoint.peerid_data),
+    "Authentication Method": returnValue(endpoint.authentication_method),
+    "Key Exchange encryption":
+      returnValue(endpoint.encryption.item["encryption-algorithm"].name) +
+      returnValue(endpoint.encryption.item["encryption-algorithm"].keylen),
+    "Data integrity": returnValue(endpoint.encryption.item["hash-algorithm"]),
+    "Diffie-Hellmann group": returnValue(endpoint.encryption.item["dhgroup"]),
+    "IKE Lifetime": returnValue(endpoint.lifetime),
+    "IKE Type": returnValue(endpoint.iketype),
+    "NAT Traversal": returnValue(endpoint.nat_traversal),
+  }));
+};
+
+const formatIPSecP2 = (phase2s) => {
+  return phase2s.map((endpoint) => ({
+    p1id: returnValue(endpoint.ikeid),
+    "P2 Description": returnValue(endpoint.descr),
+    Protocol: returnValue(endpoint.protocol),
+    "P2 Data integrity": returnValue(endpoint["hash-algorithm-option"]),
+    Encryption:
+      returnValue(endpoint["encryption-algorithm-option"].name) +
+      returnValue(endpoint["encryption-algorithm-option"].keylen),
+    "SA Lifetime": returnValue(endpoint.lifetime),
+    "Local Subnets":
+      returnValue(endpoint.localid.type) !== "network"
+        ? returnValue(endpoint.localid.type)
+        : `${returnValue(endpoint.localid.address)}/${returnValue(
+            endpoint.localid.netbits
+          )}`,
+    "Remote subnets": `${returnValue(endpoint.remoteid.address)}/${returnValue(
+      endpoint.remoteid.netbits
+    )}`,
+  }));
+};
+
+const formatIPSec = (phase1s, phase2s) => {
+  const p1s = formatIPSecP1(phase1s);
+  const p2s = formatIPSecP2(phase2s);
+
+  const ipsecs = [];
+  p2s.forEach((p2) => {
+    const relatedP1 = p1s.find((p1) => p1.ID === p2.p1id);
+    if (relatedP1) {
+      delete relatedP1.ID;
+      delete p2.p1id;
+      ipsecs.push({ ...relatedP1, ...p2 });
+    }
+  });
+
+  return ipsecs;
+};
 
 module.exports = {
   formatRule,
   formatNat,
   formatAlias,
   formatDHCP,
-  generateScopeObject
+  generateScopeObject,
+  formatOVPN,
+  formatIPSec,
 };

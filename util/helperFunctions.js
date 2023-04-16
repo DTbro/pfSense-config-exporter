@@ -58,6 +58,9 @@ const resetDirectories = (outputRoot) => {
   fs.mkdirSync(path.join(__dirname, "..", outputRoot, "dhcp"));
   fs.mkdirSync(path.join(__dirname, "..", outputRoot, "dhcp/bindings"));
   fs.mkdirSync(path.join(__dirname, "..", outputRoot, "dhcp/scopes"));
+  fs.mkdirSync(path.join(__dirname, "..", outputRoot, "vpn"));
+  fs.mkdirSync(path.join(__dirname, "..", outputRoot, "vpn/openvpn"));
+  fs.mkdirSync(path.join(__dirname, "..", outputRoot, "vpn/ipsec"));
 
   console.log(`Könyvtárak visszaállitva alaphelyzetbe!`);
 };

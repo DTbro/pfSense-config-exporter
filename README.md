@@ -52,6 +52,7 @@ npm run sandbox
 #### Frissitések
 
 - 2023.04.14: DHCP Export funkció hozzáadása
+- 2023.04.16: VPN Export funkció hozzáadása, modulok kialakitása
 
 ---
 
